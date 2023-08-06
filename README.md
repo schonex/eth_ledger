@@ -5,6 +5,13 @@ You will have to pip3 install the following:
 * pycoingecko
 * pytz
 
+For the tax plugin to work, you must have the books full path defined in PYTHONPATH
+```
+export PYTHONPATH=/my/path/books
+```
+
+Make sure you change the asset account name in `books/accounts.beancount` to the last 4 characters of your account that you'll be running `eth_ledger.py --address` with
+
 ```
 usage: as.py [-h] --el-url EL_URL --address ADDRESS [--count-stop COUNT_STOP] [--start-block START_BLOCK] [--stop-block STOP_BLOCK] [--load-file LOAD_FILE] [--batch-size BATCH_SIZE]
 
