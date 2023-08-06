@@ -36,7 +36,7 @@ w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider(args.el_url))#,request_kwargs={'timeo
 
 cg = CoinGeckoAPI()
 console = Console()
-
+"""
 date_open = datetime(2022,1,1).date()
 cl_account = data.Open(
         date=date_open,
@@ -60,6 +60,10 @@ to_account = data.Open(
         meta=None,
         booking=Booking.FIFO,
         )
+"""
+cl_account = "Income:ETH:Staking:CL"
+prop_account = "Income:ETH:Staking:MinerTips"
+to_account= f"Assets:ETH:{args.address[-4:]}"
 
 class GracefulKiller:
   file = None
@@ -101,12 +105,12 @@ async def processBlock(block,w3):
         if w['address'] == address:
             eth = w['amount'] / 1_000_000_000
             price = await get_price_on_date(p_date)
-            rounded_eth = str(round(eth, 6) * -1)
+            rounded_eth = str(round(eth, 6))
             usd = str(round(price * round(eth,6),2))
             vind = w['validatorIndex']
             payee = "Ethereum Blockchain"
             nar = f"Withdrawal for validator {vind} (CL Work)"
-            entries.append((w['amount'] * 1_000_000_000, d_lcl.date(), payee, nar, rounded_eth, price, usd, vind, block.number))
+            entries.append(("W",w['amount'] * 1_000_000_000, d_lcl.date(), payee, nar, rounded_eth, price, usd, vind, block.number))
 
     if miner == args.address:
       #non MEV block
@@ -124,29 +128,30 @@ async def processBlock(block,w3):
       minerTip = totalfee - burned
       #prepare entry data for non MEV block
       eth = minerTip / 1_000_000_000_000_000_000
-      rounded_eth = str(round(eth, 6) * -1)
+      rounded_eth = str(round(eth, 6))
       price = await get_price_on_date(p_date)
       usd = str(round(price * round(eth,6),2))
       payee = "Ethereum Blockchain"
       nar = f"Proposal for block #{block.number}"
-      entries.append((minerTip, d_lcl.date(), payee, nar, rounded_eth, price, usd, None, block.number))
+      entries.append(("P",minerTip, d_lcl.date(), payee, nar, rounded_eth, price, usd, None, block.number))
     else:
       #mev block
       for tx in block['transactions']:
           if tx['to'] == address and tx['from'] == miner:
             eth = tx['value'] / 1_000_000_000_000_000_000
-            rounded_eth = str(round(eth, 6) * -1)
+            rounded_eth = str(round(eth, 6))
             price = await get_price_on_date(p_date)
             usd = str(round(price * round(eth,6),2))
             payee = f"Ethereum MEV: {tx['from']}"
             nar = f"Proposal for block #{block.number}"
-            entries.append((tx['value'], d_lcl.date(), payee, nar, rounded_eth, price, usd, None, block.number))
+            entries.append(("P",tx['value'], d_lcl.date(), payee, nar, rounded_eth, price, usd, None, block.number))
             break
     
     return entries
 
 def createEntry(item, f):
-    _, date, payee, nar, rounded_eth, price, usd, tag, link = item
+    txtype, _, date, payee, nar, rounded_eth, price, usd, tag, link = item
+    from_acct = prop_account if txtype == "P" else cl_account
     printer.print_entry(
         data.Transaction(
             meta = None,
@@ -157,8 +162,8 @@ def createEntry(item, f):
             tags = {tag} if tag != None else set(),
             links = {link} if link != None else set(),
             postings = [
-                data.Posting(prop_account.account, data.Amount(D(rounded_eth),'ETH'), None, data.Amount(D(str(price)),'USD'), None, None),
-                data.Posting(to_account.account, data.Amount(D(usd),'USD'), None, None, None, None)
+                data.Posting(to_account, data.Amount(D(rounded_eth), 'ETH'), data.Cost(D(str(price)),'USD', None, None), data.Amount(D(str(price)), 'USD'), None, None),
+                data.Posting(from_acct, None, None, None, None, None),
                 ]
         )
     ,file=f)
@@ -173,9 +178,9 @@ async def main():
       f = open(args.load_file, 'a')
     else:
       f = open("./2022.beancount",'w') #using 2022 for London's inception
-      printer.print_entry(cl_account, file=f)
-      printer.print_entry(prop_account, file=f)
-      printer.print_entry(to_account, file=f)
+      #printer.print_entry(cl_account, file=f)
+      #printer.print_entry(prop_account, file=f)
+      #printer.print_entry(to_account, file=f)
     min_block = 15537394 # London
     start_block = max(min_block, start_block)
     console.log(f"Starting at block {start_block}...")
@@ -209,7 +214,7 @@ async def main():
               result = await r
               if len(result) > 0:
                   for item in result:
-                      bal += item[0]
+                      bal += item[1]
                       unpacked_results.append(item)
           
           unpacked_results.sort(key=lambda x: x[-1])
