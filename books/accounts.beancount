@@ -1,0 +1,11 @@
+option "operating_currency" "USD"
+
+2022-01-01 open Income:ETH:Staking:CL                           USD
+
+2022-01-01 open Income:ETH:Staking:MinerTips                    USD
+
+2022-01-01 open Assets:ETH:Abcd                                 ETH "LIFO"
+
+2022-01-01 open Liabilities:Taxes:Income-Tax                    USD
+
+2022-01-01 open Expenses:Taxes:Staking                          USD

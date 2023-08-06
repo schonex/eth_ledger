@@ -1,0 +1,4 @@
+plugin "accounting.tax_plugin" "tax=0.18"
+include "../accounts.beancount"
+include "opening_balance.beancount"
+include "postings.beancount"

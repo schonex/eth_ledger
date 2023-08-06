@@ -1,0 +1,16 @@
+initial-income: 85000
+rates:
+  - base: 0
+    rate: 0.10
+  - base: 11001
+    rate: 0.12
+  - base: 44726
+    rate: 0.22
+  - base: 95376
+    rate: 0.24
+  - base: 182101
+    rate: 0.32
+  - base: 231251
+    rate: 0.35
+  - base: 578126
+    rate: 0.37

@@ -1,0 +1,4 @@
+plugin "accounting.tax_plugin" "taxfile=/full/path/this/book/2023/taxrates.yaml"
+include "../accounts.beancount"
+include "opening_balance.beancount"
+include "postings.beancount"

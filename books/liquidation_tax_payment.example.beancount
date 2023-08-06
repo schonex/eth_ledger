@@ -1,0 +1,28 @@
+2015-01-01 open Equity:ETH:ICO 32.00000 ETH {0.30 USD}
+
+2024-01-01 * "Initial Stake"
+  Assets:ETH:Beacon-Chain     32.00000 ETH
+  Equity:ETH:ICO
+
+2024-02-01 * "Ethereum MEV: 0xabcd" "Proposal for block #1234567" ^1234567
+  Assets:ETH:Abcd                1.00000 ETH {1500.00 USD} @ 1500.00 USD
+  Liabilities:Taxes:Income-Tax        -750.00 USD
+  Expenses:Taxes:Staking               750.00 USD
+  Income:ETH:Staking:MinerTips
+
+2024-02-01 * "Ethereum MEV: 0xabcd" "Proposal for block #1234568" ^123458
+  Assets:ETH:Abcd                0.50000 ETH {1818.00 USD} @ 1818.00 USD
+  Liabilities:Taxes:Income-Tax        -454.50 USD
+  Expenses:Taxes:Staking               454.50 USD
+  Income:ETH:Staking:MinerTips
+
+2024-02-03 * "Liquidation" "Taxes liability"
+  Assets:ETH:Abcd            -0.50000 ETH {1818.00 USD} @ 1850.00 USD
+  Assets:ETH:Abcd            -0.15108 ETH {1500.00 USD}
+  Assets:US:Cash              1204.50 USD
+  Income:US:Crypto:PnL
+
+2024-04-15 * "Uncle Sam" "Paid Taxes"
+  Assets:US:Cash                 -1204.50 USD
+  Liabilities:Taxes:Income-Tax    1204.50 USD
+
