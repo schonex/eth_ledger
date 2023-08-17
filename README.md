@@ -5,6 +5,11 @@ You will have to pip3 install the following:
 * pycoingecko
 * pytz
 
+Converting an etherscan.io internal tx csv file after its downloaded:
+
+1) add on the first line, at the very end, a new column by adding this string with the quotes ``,"Blank"``
+2) run ./convert_internal.py --address 0xabcd --bean-file books/2023/internal_additions.beancount --es-file /my/path/to/internal-txs.csv
+
 For the tax plugin to work, you must have the books full path defined in PYTHONPATH
 ```
 export PYTHONPATH=/my/path/books

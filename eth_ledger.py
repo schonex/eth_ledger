@@ -29,6 +29,7 @@ parser.add_argument('--start-block',type=int,default=None,help="Start from block
 parser.add_argument('--stop-block',type=int,default=None,help="Stop after processing block number")
 parser.add_argument('--load-file',type=str,default=None,help="Load previous file and continue from last block processed")
 parser.add_argument('--batch-size',type=int,default=100,help="Change batch size for requests going to the EL client, default is 100")
+parser.add_argument('--internal',action='store_true',default=False)
 
 args = parser.parse_args()
 
@@ -88,6 +89,9 @@ async def get_price_on_date(d):
         prices[d] = round(price,2)
         return prices[d]
 
+async def trace_transactions(block_num):
+    return w3http.tracing.trace_replay_block_transactions(block_num, ["Trace"])
+
 async def processBlock(block,w3):
     miner = block['miner']
 #    console.log(block['extraData'])
@@ -146,7 +150,24 @@ async def processBlock(block,w3):
             nar = f"Proposal for block #{block.number}"
             entries.append(("P",tx['value'], d_lcl.date(), payee, nar, rounded_eth, price, usd, None, block.number))
             break
-    
+
+    if proposal and args.internal: #possible to have an internal tx from a diff entity (MEV BOT)
+        res = await trace_transactions(block.number)
+        for tx in res:
+            for op in tx['trace']:
+                if 'action' in op and 'to' in op['action']:
+                 if op['action']['to'] == address:
+                    code = await w3.eth.get_code(op['action']['from'])
+                    if code != bytes(): #check if this is just the normal tx made above or if its from a smart contract
+                      wei = op['action']['value']
+                      eth = wei / 1_000_000_000_000_000_000 #from wei to eth
+                      rounded_eth = str(round(eth, 6))
+                      price = await get_price_on_date(p_date)
+                      usd = None
+                      payee = f"Ethereum MEV: {op['action']['from']}"
+                      nar = f"Proposal for block #{block.number}"
+                      entries.append(("P",wei, d_lcl.date(), payee, nar, rounded_eth, price, usd, None, block.number))
+ 
     return entries
 
 def createEntry(item, f):
