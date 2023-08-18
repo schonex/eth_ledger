@@ -5,6 +5,7 @@ from web3 import AsyncWeb3
 from web3.providers import WebsocketProviderV2
 import argparse
 import sys
+import os
 import signal
 
 from rich.progress import track
@@ -197,11 +198,21 @@ async def main():
       s = set(entries[-1].links)
       start_block = max(int(s.pop()) + 1, args.start_block or 0)
       f = open(args.load_file, 'a')
+      save_file = f"{args.load_file}.pos"
     else:
       f = open("./2022.beancount",'w') #using 2022 for London's inception
+      save_file = "2022.beancount.pos"
       #printer.print_entry(cl_account, file=f)
       #printer.print_entry(prop_account, file=f)
       #printer.print_entry(to_account, file=f)
+
+    if os.path.exists(save_file):
+        fpos = open(save_file,'r')
+        n = fpos.readline()
+        if n.isnumeric():
+          start_block = max(start_block, int(n))
+        fpos.close()
+
     min_block = 15537394 # London
     start_block = max(min_block, start_block)
     console.log(f"Starting at block {start_block}...")
@@ -219,6 +230,9 @@ async def main():
     bal = 0
     count = 0
     console.log(f"Set step size to: {step}")
+
+    #save position to file
+    fpos = open(save_file, 'w')
     with console.status('[bold green]Processing blocks...') as status:
       for blockNum in range(start_block, currentBlock, step):
           processors = []
@@ -245,6 +259,9 @@ async def main():
 
           d_utc = datetime.utcfromtimestamp(last_time)
           console.log(f"Processed blocks {blockNum} -> {blockNum+step} last date: {d_utc}")
+          fpos.truncate(0)
+          fpos.write(str(blockNum+step))
+          fpos.flush()
           if len(unpacked_results) > 0: 
               f.flush()
 
@@ -260,6 +277,7 @@ async def main():
               console.log("Reached stop block requested, quitting")
               break
     f.close()
+    fpos.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
