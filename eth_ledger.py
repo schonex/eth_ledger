@@ -208,7 +208,7 @@ async def main():
 
     if os.path.exists(save_file):
         fpos = open(save_file,'r')
-        n = fpos.readline()
+        n = fpos.readline().strip()
         if n.isnumeric():
           start_block = max(start_block, int(n))
         fpos.close()
