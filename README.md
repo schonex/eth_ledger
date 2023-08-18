@@ -18,7 +18,7 @@ export PYTHONPATH=/my/path/books
 Make sure you change the asset account name in `books/accounts.beancount` to the last 4 characters of your account that you'll be running `eth_ledger.py --address` with
 
 ```
-usage: as.py [-h] --el-url EL_URL --address ADDRESS [--count-stop COUNT_STOP] [--start-block START_BLOCK] [--stop-block STOP_BLOCK] [--load-file LOAD_FILE] [--batch-size BATCH_SIZE]
+usage: eth_ledger.py [-h] --el-url EL_URL --address ADDRESS [--count-stop COUNT_STOP] [--start-block START_BLOCK] [--stop-block STOP_BLOCK] [--load-file LOAD_FILE] [--batch-size BATCH_SIZE] [--internal]
 
 Validator Rewards Beancount Generator
 
@@ -36,4 +36,5 @@ options:
                         Load previous file and continue from last block processed
   --batch-size BATCH_SIZE
                         Change batch size for requests going to the EL client, default is 100
+  --internal            Retrieve internal tx, requires a nethermind non pruning node
 ```

@@ -30,7 +30,7 @@ parser.add_argument('--start-block',type=int,default=None,help="Start from block
 parser.add_argument('--stop-block',type=int,default=None,help="Stop after processing block number")
 parser.add_argument('--load-file',type=str,default=None,help="Load previous file and continue from last block processed")
 parser.add_argument('--batch-size',type=int,default=100,help="Change batch size for requests going to the EL client, default is 100")
-parser.add_argument('--internal',action='store_true',default=False)
+parser.add_argument('--internal',action='store_true',default=False, help="Retrieve internal tx, requires a nethermind non pruning node")
 
 args = parser.parse_args()
 
